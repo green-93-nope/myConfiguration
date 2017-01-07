@@ -14,7 +14,7 @@ conky.text = [[
 ${if_up wlp3s0} \
   ${downspeed wlp3s0}/s \
   ${upspeed wlp3s0}/s \
-  ${wireless_essid wlp3s0} ${addr wlp3s0}  \
+  ${wireless_essid wlp3s0} ${wireless_bitrate wlp3s0} ${addr wlp3s0}  \
 ${else}${if_up enp0s25}  \
   ${downspeed enp0s25}/s \
   ${upspeed enp0s25}/s \
