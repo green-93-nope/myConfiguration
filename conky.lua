@@ -24,6 +24,6 @@ ${endif}${endif} \
   ${hwmon temp 1}°  \
   ${cpu cpu0}%  \
   ${battery_short BAT1}   \
-${time %Y/%m/%d %a}  \
+${time %Y/%m/%d %a} \
 ${time %H:%M:%S}
 ]]
