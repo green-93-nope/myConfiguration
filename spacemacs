@@ -24,7 +24,7 @@ values."
    ;; If non-nil then Spacemacs will ask for confirmation before installing
    ;; a layer lazily. (default t)
    dotspacemacs-ask-for-lazy-installation t
-   ;; If non-nil layers with lazy install  ;;org-mode export to latex
+   ;; If non-nil layers with lazy install 
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
    dotspacemacs-configuration-layer-path '()
@@ -49,10 +49,13 @@ values."
      spell-checking
      syntax-checking
      version-control
+     search-engine
      ibuffer
+     (ranger :variables
+              ranger-show-preview t)
      smex
      gtags
-     latex
+     (latex :variables latex-build-command "XeLaTeX")
      python
      ruby
      racket
@@ -61,6 +64,7 @@ values."
      shell-scripts
      semantic
      prodigy
+     green-org
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -302,7 +306,12 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
-  )
+  (setq exec-path-from-shell-arguments '("-l"))
+  (add-hook 'LaTeX-mode-hook
+             (lambda ()
+               (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))
+))
+)
 
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
@@ -311,207 +320,14 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here." 
-;;org-mode export to latex
-  ;;org-mode export to latex
+  ;; use American English as ispell default dictionary
+  (ispell-change-dictionary "english" t)
   (global-linum-mode)
-  (require 'ox-latex)
-  ;;org-mode source code setup in exporting to latex
-  (add-to-list 'org-latex-listings '("" "listings"))
-  (add-to-list 'org-latex-listings '("" "color"))
-
-  (add-to-list 'org-latex-packages-alist
-               '("" "xcolor" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "listings" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "fontspec" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "indentfirst" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "xunicode" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "geometry"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "float"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "longtable"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "tikz"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "fancyhdr"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "textcomp"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "amsmath"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "tabularx" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "booktabs" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "grffile" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "wrapfig" t))
-  (add-to-list 'org-latex-packages-alist
-               '("normalem" "ulem" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "amssymb" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "capt-of" t))
-  (add-to-list 'org-latex-packages-alist
-               '("figuresright" "rotating" t))
-  (add-to-list 'org-latex-packages-alist
-               '("Lenny" "fncychap" t))
-
-  (add-to-list 'org-latex-classes
-               '("xelatex-org-book"
-                 "\\documentclass{book}
-\\usepackage[slantfont, boldfont]{xeCJK}
-% chapter set
-\\usepackage{titlesec}
-\\usepackage{hyperref}
-
-[NO-DEFAULT-PACKAGES]
-[PACKAGES]
-
-
-
-\\setCJKmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-\\setCJKsansfont{WenQuanYi Micro Hei}
-\\setCJKmonofont{WenQuanYi Micro Hei Mono}
-
-\\setmainfont{DejaVu Sans} % 英文衬线字体
-\\setsansfont{DejaVu Serif} % 英文无衬线字体
-\\setmonofont{DejaVu Sans Mono}
-%\\setmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-%\\setsansfont{WenQuanYi Micro Hei}
-%\\setmonofont{WenQuanYi Micro Hei Mono}
-
-%如果没有它，会有一些 tex 特殊字符无法正常使用，比如连字符。
-\\defaultfontfeatures{Mapping=tex-text}
-
-% 中文断行
-\\XeTeXlinebreaklocale \"zh\"
-\\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
-
-% 代码设置
-\\lstset{numbers=left,
-numberstyle= \\tiny,
-keywordstyle= \\color{ blue!70},commentstyle=\\color{red!50!green!50!blue!50},
-frame=shadowbox,
-breaklines=true,
-rulesepcolor= \\color{ red!20!green!20!blue!20}
-}
-
-[EXTRA]
-"
-                 ("\\chapter{%s}" . "\\chapter*{%s}")
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-
-
-  (add-to-list 'org-latex-classes
-               '("xelatex-org-article"
-                 "\\documentclass{article}
-\\usepackage[slantfont, boldfont]{xeCJK}
-\\usepackage{titlesec}
-\\usepackage{hyperref}
-
-[NO-DEFAULT-PACKAGES]
-[PACKAGES]
-
-\\parindent 2em
-
-\\setCJKmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-\\setCJKsansfont{WenQuanYi Micro Hei}
-\\setCJKmonofont{WenQuanYi Micro Hei Mono}
-
-\\setmainfont{DejaVu Sans} % 英文衬线字体
-\\setsansfont{DejaVu Serif} % 英文无衬线字体
-\\setmonofont{DejaVu Sans Mono}
-%\\setmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-%\\setsansfont{WenQuanYi Micro Hei}
-%\\setmonofont{WenQuanYi Micro Hei Mono}
-
-%如果没有它，会有一些 tex 特殊字符无法正常使用，比如连字符。
-\\defaultfontfeatures{Mapping=tex-text}
-
-% 中文断行
-\\XeTeXlinebreaklocale \"zh\"
-\\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
-
-% 代码设置
-\\lstset{numbers=left,
-numberstyle= \\tiny,
-keywordstyle= \\color{ blue!70},commentstyle=\\color{red!50!green!50!blue!50},
-frame=shadowbox,
-breaklines=true,
-rulesepcolor= \\color{ red!20!green!20!blue!20}
-}
-
-[EXTRA]
-"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-
-  (add-to-list 'org-latex-classes
-               '("xelatex-org-beamer"
-                 "\\documentclass{beamer}
-\\usepackage[slantfont, boldfont]{xeCJK}
-% beamer set
-\\usepackage[none]{hyphenat}
-\\usepackage[abs]{overpic}
-
-[NO-DEFAULT-PACKAGES]
-[PACKAGES]
-
-\\setCJKmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-\\setCJKsansfont{WenQuanYi Micro Hei}
-\\setCJKmonofont{WenQuanYi Micro Hei Mono}
-
-\\setmainfont{DejaVu Sans} % 英文衬线字体
-\\setsansfont{DejaVu Serif} % 英文无衬线字体
-\\setmonofont{DejaVu Sans Mono}
-%\\setmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-%\\setsansfont{WenQuanYi Micro Hei}
-%\\setmonofont{WenQuanYi Micro Hei Mono}
-
-%如果没有它，会有一些 tex 特殊字符无法正常使用，比如连字符。
-\\defaultfontfeatures{Mapping=tex-text}
-
-% 中文断行
-\\XeTeXlinebreaklocale \"zh\"
-\\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
-
-% 代码设置
-\\lstset{numbers=left,
-numberstyle= \\tiny,
-keywordstyle= \\color{ blue!70},commentstyle=\\color{red!50!green!50!blue!50},
-frame=shadowbox,
-breaklines=true,
-rulesepcolor= \\color{ red!20!green!20!blue!20}
-}
-
-[EXTRA]
-"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-
-    (setq org-latex-pdf-process
-        '("xelatex -interaction nonstopmode -output-directory %o %f"
-          ;;"biber %b" "xelatex -interaction nonstopmode -output-directory %o %f"
-          "bibtex %b"
-          "xelatex -interaction nonstopmode -output-directory %o %f"
-          "xelatex -interaction nonstopmode -output-directory %o %f"))
-    )
+  (menu-bar-mode)
+  (setq browse-url-browser-function 'browse-url-generic
+        engine/browser-function 'browse-url-generic
+        browse-url-generic-program "firefox")
+  (spacemacs/declare-prefix "o" "for-green")
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
@@ -522,10 +338,11 @@ rulesepcolor= \\color{ red!20!green!20!blue!20}
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (mmm-mode markdown-toc markdown-mode gh-md helm-gtags ggtags smex stickyfunc-enhance srefactor org org-present orgit company-auctex auctex-latexmk auctex ibuffer-projectile org-plus-contrib lua-mode racket-mode faceup prodigy insert-shebang fish-mode disaster company-shell company-c-headers cmake-mode clang-format rvm ruby-tools ruby-test-mode rubocop rspec-mode robe rbenv rake minitest chruby bundler inf-ruby yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic xterm-color shell-pop multi-term git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck eshell-z eshell-prompt-extras esh-help diff-hl auto-dictionary smeargle org-projectile org-pomodoro alert log4e gntp org-download mwim magit-gitflow htmlize helm-gitignore helm-company helm-c-yasnippet gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit with-editor company-statistics company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async quelpa package-build spacemacs-theme))))
+    (ranger engine-mode mmm-mode markdown-toc markdown-mode gh-md helm-gtags ggtags smex stickyfunc-enhance srefactor org org-present orgit company-auctex auctex-latexmk auctex ibuffer-projectile org-plus-contrib lua-mode racket-mode faceup prodigy insert-shebang fish-mode disaster company-shell company-c-headers cmake-mode clang-format rvm ruby-tools ruby-test-mode rubocop rspec-mode robe rbenv rake minitest chruby bundler inf-ruby yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic xterm-color shell-pop multi-term git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck eshell-z eshell-prompt-extras esh-help diff-hl auto-dictionary smeargle org-projectile org-pomodoro alert log4e gntp org-download mwim magit-gitflow htmlize helm-gitignore helm-company helm-c-yasnippet gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit with-editor company-statistics company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async quelpa package-build spacemacs-theme))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+)
