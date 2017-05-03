@@ -21,7 +21,7 @@
            (mirror "/etc/pacman.d/mirrorlist"))
      (with-temp-buffer
       (insert-file-contents pacnew)
-      (use-source "Worldwide")
+      ;; (use-source "Worldwide")
       (use-source "China")
       (write-file mirror)
       ))
