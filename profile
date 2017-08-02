@@ -14,4 +14,6 @@ export PATH=~/.cabal/bin:$PATH
 export PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
 
 export GEM_HOME=$(ruby -e 'print Gem.user_dir')
+export GOPATH=$HOME/go
 
+export JAVA_HOME=/usr/lib/jvm/default
