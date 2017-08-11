@@ -416,53 +416,77 @@ key.setViewKey('M-n', function (ev) {
                 command.walkInputElement(command.elementsRetrieverButton, false, true);
             }, 'Focus to the previous button', false);
 
-key.setCaretKey([["C-a"], ["^"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectBeginLine") : goDoCommand("cmd_beginLine");
-            }, 'Move caret to the beginning of the line', false);
+// key.setCaretKey([["C-a"], ["^"]], function (ev) {
+//                 ev.target.ksMarked ? goDoCommand("cmd_selectBeginLine") : goDoCommand("cmd_beginLine");
+//             }, 'Move caret to the beginning of the line', false);
 
-key.setCaretKey([["C-e"], ["$"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectEndLine") : goDoCommand("cmd_endLine");
-            }, 'Move caret to the end of the line', false);
+// key.setCaretKey([["C-e"], ["$"]], function (ev) {
+//                 ev.target.ksMarked ? goDoCommand("cmd_selectEndLine") : goDoCommand("cmd_endLine");
+//             }, 'Move caret to the end of the line', false);
 
-key.setCaretKey([["C-n"], ["j"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectLineNext") : goDoCommand("cmd_scrollLineDown");
-            }, 'Move caret to the next line', false);
+// key.setCaretKey([["C-n"], ["j"]], function (ev) {
+//                 ev.target.ksMarked ? goDoCommand("cmd_selectLineNext") : goDoCommand("cmd_scrollLineDown");
+//             }, 'Move caret to the next line', false);
 
-key.setCaretKey([["C-p"], ["k"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectLinePrevious") : goDoCommand("cmd_scrollLineUp");
-            }, 'Move caret to the previous line', false);
+// key.setCaretKey([["C-p"], ["k"]], function (ev) {
+//                 ev.target.ksMarked ? goDoCommand("cmd_selectLinePrevious") : goDoCommand("cmd_scrollLineUp");
+//             }, 'Move caret to the previous line', false);
 
-key.setCaretKey([["C-f"], ["l"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectCharNext") : goDoCommand("cmd_scrollRight");
-            }, 'Move caret to the right', false);
+// key.setCaretKey([["C-f"], ["l"]], function (ev) {
+//                 ev.target.ksMarked ? goDoCommand("cmd_selectCharNext") : goDoCommand("cmd_scrollRight");
+//             }, 'Move caret to the right', false);
 
-key.setCaretKey([["C-b"], ["h"], ["C-h"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectCharPrevious") : goDoCommand("cmd_scrollLeft");
-            }, 'Move caret to the left', false);
+// key.setCaretKey([["C-b"], ["h"], ["C-h"]], function (ev) {
+//                 ev.target.ksMarked ? goDoCommand("cmd_selectCharPrevious") : goDoCommand("cmd_scrollLeft");
+//             }, 'Move caret to the left', false);
 
-key.setCaretKey([["M-f"], ["w"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectWordNext") : goDoCommand("cmd_wordNext");
-            }, 'Move caret to the right by word', false);
+// key.setCaretKey([["M-f"], ["w"]], function (ev) {
+//                 ev.target.ksMarked ? goDoCommand("cmd_selectWordNext") : goDoCommand("cmd_wordNext");
+//             }, 'Move caret to the right by word', false);
 
-key.setCaretKey([["M-b"], ["W"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectWordPrevious") : goDoCommand("cmd_wordPrevious");
-            }, 'Move caret to the left by word', false);
+// key.setCaretKey([["M-b"], ["W"]], function (ev) {
+//                 ev.target.ksMarked ? goDoCommand("cmd_selectWordPrevious") : goDoCommand("cmd_wordPrevious");
+//             }, 'Move caret to the left by word', false);
 
-key.setCaretKey([["C-v"], ["SPC"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectPageNext") : goDoCommand("cmd_movePageDown");
-            }, 'Move caret down by page', false);
+// key.setCaretKey([["C-v"], ["SPC"]], function (ev) {
+//                 ev.target.ksMarked ? goDoCommand("cmd_selectPageNext") : goDoCommand("cmd_movePageDown");
+//             }, 'Move caret down by page', false);
 
-key.setCaretKey([["M-v"], ["b"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectPagePrevious") : goDoCommand("cmd_movePageUp");
-            }, 'Move caret up by page', false);
+// key.setCaretKey([["M-v"], ["b"]], function (ev) {
+//                 ev.target.ksMarked ? goDoCommand("cmd_selectPagePrevious") : goDoCommand("cmd_movePageUp");
+//             }, 'Move caret up by page', false);
 
-key.setCaretKey([["M-<"], ["g"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectTop") : goDoCommand("cmd_scrollTop");
-            }, 'Move caret to the top of the page', false);
+// key.setCaretKey([["M-<"], ["g"]], function (ev) {
+//                 ev.target.ksMarked ? goDoCommand("cmd_selectTop") : goDoCommand("cmd_scrollTop");
+//             }, 'Move caret to the top of the page', false);
 
-key.setCaretKey([["M->"], ["G"]], function (ev) {
-                ev.target.ksMarked ? goDoCommand("cmd_selectEndLine") : goDoCommand("cmd_endLine");
-            }, 'Move caret to the end of the line', false);
+// key.setCaretKey([["M->"], ["G"]], function (ev) {
+//     ev.target.ksMarked ? goDoCommand("cmd_selectEndLine") : goDoCommand("cmd_scrollBottom");
+//             }, 'Move caret to the end of the line', false);
+
+key.setCaretKey("l", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectCharNext") : command.nextChar(ev); }, 'キャレットを一文字右へ移動', false);
+
+key.setCaretKey("h", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectCharPrevious") : command.previousChar(ev); }, 'キャレットを一文字左へ移動', false);
+
+key.setCaretKey("L", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectWordNext") : command.forwardWord(ev); }, 'キャレットを一単語右へ移動', false);
+
+key.setCaretKey("H", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectWordPrevious") : command.backwardWord(ev); }, 'キャレットを一単語左へ移動', false);
+
+key.setCaretKey("j", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectLineNext") : command.nextLine(ev); }, 'キャレットを一行下へ', false);
+
+key.setCaretKey("k", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectLinePrevious") : command.previousLine(ev); }, 'キャレットを一行上へ', false);
+
+key.setCaretKey("SPC", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectPageNext") : command.pageDown(ev); }, 'キャレットを一画面分下へ', false);
+
+key.setCaretKey("b", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectPagePrevious") : command.pageUp(ev); }, 'キャレットを一画面分上へ', false);
+
+key.setCaretKey("^", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectBeginLine") : command.beginLine(ev); }, 'キャレットを行頭へ移動', false);
+
+key.setCaretKey("$", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectEndLine") : command.endLine(ev); }, 'キャレットを行末へ移動', false);
+
+key.setCaretKey("g", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectTop") : command.moveTop(ev); }, 'キャレットをページ先頭へ移動', false);
+
+key.setCaretKey("G", function (ev) { ev.target.ksMarked ? goDoCommand("cmd_selectBottom") : command.moveBottom(ev); }, 'キャレットをページ末尾へ移動', false);
 
 key.setCaretKey('J', function (ev) {
                 util.getSelectionController().scrollLine(true);
@@ -523,12 +547,6 @@ key.setCaretKey('M-n', function (ev) {
             }, 'Focus to the previous button', false);
 
 
-// {{ caret-mode
-key.setGlobalKey(['C-c','C-i'], function (ev, arg) {
-    util.setBoolPref("accessibility.browsewithcaret", !util.isCaretEnabled());
-}, 'Enter to caret mode', true);
-// }}
-
 // {{ hok
 hook.setHook('PluginLoaded', function () {
     if (!plugins.hok) return;
@@ -575,3 +593,20 @@ key.setGlobalKey(['C-c', 'C-a'], function (ev, arg) {
 key.setViewKey("m", function (ev, arg) {
     ext.exec("bmany-list-all-bookmarks", arg, ev);
 }, "bmany - List all bookmarks");
+
+//this add some visual effect indicating the caret mode
+key.setViewKey(['C-c', 'i'], function (ev) {
+    children = document.getElementById("nav-bar").children;
+    for (i = 0; i < children.length; i++) {
+        children[i].style.backgroundColor = "pink";
+    }
+    util.setBoolPref("accessibility.browsewithcaret", true);
+}, 'Start Caret-Browse Mode');
+
+key.setCaretKey(['C-c', 'i'], function (ev) {
+    children = document.getElementById("nav-bar").children;
+    for (i = 0; i < children.length; i++) {
+        children[i].style.backgroundColor = "transparent";
+    }
+    util.setBoolPref("accessibility.browsewithcaret", false);
+}, 'Exit Caret-Browse Mode');
