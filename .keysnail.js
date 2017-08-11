@@ -610,3 +610,276 @@ key.setCaretKey(['C-c', 'i'], function (ev) {
     }
     util.setBoolPref("accessibility.browsewithcaret", false);
 }, 'Exit Caret-Browse Mode');
+
+key.setViewKey('M-u', function (ev, arg)
+               {
+                   display.echoStatusBar("Copy URL to clipboard");
+                   command.setClipboardText(getBrowser().contentDocument.URL);
+               }, 'Copy URL to clipboard');
+
+
+// {{ next/previous page
+ext.add("previous-page", function () {
+    var document = window.content.document;
+    var links = document.links;
+    for(var i = 0; i < links.length; i++) {
+        if (/<?[ \t]*(上页|上一页|[Pp]revious|<|<<)/.test(links[i].text)) {
+            document.location = links[i].href;
+            return;
+        }
+    }
+}, "Previous page");
+
+ext.add("next-page", function () {
+    var document = window.content.document;
+    var links = document.links;
+    for(var i = 0; i < links.length; i++) {
+        if (/(下页|下一页|[Nn]ext|>|>>)[ \t]*>?/.test(links[i].text)) {
+            document.location = links[i].href;
+            return;
+        }
+    }
+}, "Next page");
+
+key.setViewKey([',', 'p', 'p'], function(ev, arg) {
+    ext.exec("previous-page", arg, ev);
+}, "Previous page");
+
+key.setViewKey([',', 'n', 'n'], function(ev, arg) {
+    ext.exec("next-page", arg, ev);
+}, "Next page");
+// }}
+
+
+function searchHistory(evt, arg) {
+  function timeSince(now, date) {
+
+    var seconds = Math.floor((now - date) / 1000);
+
+    var interval = Math.floor(seconds / 31536000);
+
+    if (interval > 1) {
+      return interval + " years";
+    }
+    interval = Math.floor(seconds / 2592000);
+    if (interval > 1) {
+      return interval + " months";
+    }
+    interval = Math.floor(seconds / 86400);
+    if (interval > 1) {
+      return interval + " days";
+    }
+    interval = Math.floor(seconds / 3600);
+    if (interval > 1) {
+      return interval + " hours";
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval > 1) {
+      return interval + " minutes";
+    }
+    return Math.floor(seconds) + " seconds";
+  }
+
+  function searchWithKeyword(q) {
+    var collection = (function() {
+      //search option
+      var options = PlacesUtils.history.getNewQueryOptions();
+      options.maxResults = 4096;
+      options.queryType = Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY;
+      //options.sortingMode = Ci.nsINavHistoryQueryOptions.SORT_BY_FRECENCY_DESCENDING;
+      options.sortingMode = Ci.nsINavHistoryQueryOptions.SORT_BY_DATE_DESCENDING;
+      options.includeHidden = true;
+
+      //search query
+      var query = PlacesUtils.history.getNewQuery();
+      // read keyworld
+      if(q && q !== '') {
+        query.searchTerms  = q;
+      }
+
+      var result = PlacesUtils.history.executeQuery(query, options);
+      var root = result.root;
+
+      var collection = [];
+      var now = new Date().getTime();
+      var siteNode;
+      root.containerOpen = true;
+      for (var i = 0; i < root.childCount; i++) {
+        // siteNode => nsINavHistoryResultNode
+        siteNode = root.getChild(i);
+        collection.push([siteNode.icon,siteNode.title,siteNode.uri, siteNode.time/1000]);
+      }
+      collection.sort(function(a, b) {
+        return b[3]-a[3];
+      });
+      // reformat the time
+      for (i = 0; i < collection.length; i++) {
+        collection[i][3] = timeSince(now, collection[i][3]) + ' ago';
+      }
+      root.containerOpen = false;
+      return collection;
+    })();
+
+    prompt.selector({
+      message    : "Search history"+ (q && q !== ''? (' @'+q +':') : ':' ),
+      collection : collection,
+      flags      : [ICON | IGNORE, 0, 0, 0],
+      header     : ["Title", "Url", "Last visited"],
+      width      : [30, 60, 10],
+      callback: function (i) {
+        if (i >= 0) {
+          openUILinkIn(collection[i][2], "tab");
+        }
+      },
+      onFinish: function() {
+        gBrowser.focus();
+        _content.focus();
+      }
+    });
+  }
+
+  prompt.finish(true);
+  prompt.read('Keyword to search history?', searchWithKeyword, null, null, null, 0, "history_search");
+  // searchWithKeyword('test');
+
+}
+key.setViewKey([',', 'h', 'h'], searchHistory, "Search history");
+key.setGlobalKey(['C-c', 'C-h'], searchHistory, "Search history");
+
+// {{ find tab API
+function findTabFactory (fn) {
+  return function(ev, arg) {
+    var tabItems = (function() {
+      var tabs = Array.slice(gBrowser.mTabContainer.childNodes), rlt = [], tab, url;
+      for (var i = 0; i < tabs.length; i++) {
+        tab = tabs[i];
+        url   = tab.linkedBrowser.contentWindow.location.href;
+        rlt.push([util.getFaviconPath(url), tab.label, url, tab]);
+      }
+      return rlt;
+    })();
+    prompt.selector({
+      message             : "Select tab: ",
+      initialIndex        : gBrowser.mTabContainer.selectedIndex,
+      flags               : [ICON | IGNORE, 0, 0, IGNORE | HIDDEN],
+      collection          : tabItems,
+      header              : ["Title", "URL"],
+      keymap              : {},
+      supressRecoverFocus : true,
+      callback: function (i) {
+        var tab;
+        if (i >= 0) {
+          tab = tabItems[i][3];
+        }
+        fn.call(this, tabItems, i);
+      },
+      onFinish            : function() {
+        gBrowser.focus();
+        _content.focus();
+      }
+    });
+  };
+}
+// }}
+
+// {{ tiletab
+key.setViewKey([',', 'x', 's'], function (ev, arg) {
+  tileTabs.menuActions('save',-1);
+}, 'Save tile layout');
+key.setViewKey([',', 'x', 'o'], function (ev, arg) {
+  tileTabs.menuActions('open',-1);
+}, 'Open tile layout');
+
+function splitTabFactory(tileTabKeyword) {
+  return findTabFactory(function(tabItems, index) {
+    var tab = tabItems[index][3];
+    if(tab) {
+      tileTabs.tileActions(tileTabKeyword, tab);
+    }
+    /* else maybe we just create a new tab */
+  });
+}
+key.setViewKey([',', 'x', '2'], splitTabFactory('tilelink-above'), 'Split horizontally with clicked tab');
+key.setViewKey([',', 'x', '3'], splitTabFactory('tilelink-left'), 'Split vertically with clicked tab');
+key.setGlobalKey(['C-x', '2'], splitTabFactory('tilelink-above'), 'Split horizontally with current selected tab');
+key.setGlobalKey(['C-x', '3'], splitTabFactory('tilelink-left'), 'Split vertically with current selected tab');
+key.setGlobalKey(['C-x', '0'], function (ev, arg) {
+  tileTabs.menuActions('untile',-1);
+}, 'Close tile');
+key.setGlobalKey(['C-x', '1'], function (ev, arg) {
+  tileTabs.menuActions('close',null);
+}, 'One tile');
+
+key.setGlobalKey(['C-x', 'o'], function (ev, arg) {
+  function findLayoutByTab(tab) {
+    var i;
+
+    for (i = 0; i < tileTabs.layouts.length; i++) {
+      if (tileTabs.layouts[i].layoutID == tab.getAttribute("tiletabs-assigned"))
+        return tileTabs.layouts[i];
+    }
+    return null;
+  }
+
+  var tabs = gBrowser.tabs;
+
+  function getBeFocusedTabByIndex(startIndex, selectedTabLayout) {
+    for (var i = startIndex; i < tabs.length; i++) {
+      var tabLayout = findLayoutByTab(tabs[i]);
+      if (!tabLayout) {
+        continue;
+      }
+      if (tabLayout.layoutID === selectedTabLayout.layoutID) {
+        return tabs[i];
+      }
+    }
+    return null;
+  }
+
+  var selectedTabLayout = findLayoutByTab(gBrowser.selectedTab);
+  if (!selectedTabLayout) {
+    return;
+  }
+
+  var currentTabIndex;
+
+  for (var i = 0; tabs.length; i++) {
+    if (tabs[i] === gBrowser.selectedTab) {
+      currentTabIndex = i;
+      break;
+    }
+  }
+
+  var tab = getBeFocusedTabByIndex(currentTabIndex + 1, selectedTabLayout);
+
+  if (tab) {
+    gBrowser.selectedTab = tab;
+  } else {
+    tab = getBeFocusedTabByIndex(0, selectedTabLayout);
+    gBrowser.selectedTab = tab;
+  }
+}, 'Select next tile', true);
+// }}
+
+function openAnyTabFactory () {
+  return findTabFactory(function(tabItems, index) {
+    if(index < 0) return;
+    gBrowser.mTabContainer.selectedIndex = index;
+  });
+}
+key.setViewKey([',', 'x', 'b'], openAnyTabFactory(), 'View all tabs', true);
+key.setGlobalKey(['C-x', 'b'], openAnyTabFactory(), 'View all tabs', true);
+
+function closeAllExceptCurrentTabFactory () {
+  return findTabFactory(function(tabItems, index) {
+    var i, item = tabItems[index];
+    for (i = 0; i < tabItems.length; ++i)
+    {
+      if (i !== index)
+        gBrowser.removeTab(tabItems[i][3]);
+    }
+  });
+}
+key.setViewKey([',', 'x', 'a'], closeAllExceptCurrentTabFactory(), 'Close all tabs execept selected one', true);
+key.setGlobalKey(['C-x', 'C-a'], closeAllExceptCurrentTabFactory(), 'Close all tabs except seleted one', true);
+// }}
