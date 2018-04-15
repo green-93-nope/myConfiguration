@@ -30,8 +30,8 @@ while [[ $# -gt 1 ]]; do
     shift
 done
 
-[[ -z $INLABEL ]] && INLABEL="IN "
-[[ -z $OUTLABEL ]] && OUTLABEL="OUT "
+[[ -z $INLABEL ]] && INLABEL="\\uf0ab "
+[[ -z $OUTLABEL ]] && OUTLABEL="\\uf0aa "
 
 # Use the provided interface, otherwise the device used for the default route.
 if [[ -n $BLOCK_INSTANCE ]]; then
@@ -87,7 +87,7 @@ tx_rate=$(( $tx_diff / $time_diff ))
 # 1024^2 = 1048576, then display MiB/s instead
 
 # incoming
-echo -n "$INLABEL"
+printf "$INLABEL"
 rx_kib=$(( $rx_rate >> 10 ))
 if hash bc 2>/dev/null && [[ "$rx_rate" -gt 1048576 ]]; then
   printf '%sM' "`echo "scale=1; $rx_kib / 1024" | bc`"
@@ -98,7 +98,7 @@ fi
 echo -n " "
 
 # outgoing
-echo -n "$OUTLABEL"
+printf "$OUTLABEL"
 tx_kib=$(( $tx_rate >> 10 ))
 if hash bc 2>/dev/null && [[ "$tx_rate" -gt 1048576 ]]; then
   printf '%sM' "`echo "scale=1; $tx_kib / 1024" | bc`"
